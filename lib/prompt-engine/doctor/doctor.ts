@@ -19,8 +19,8 @@ function expectedLensType(focalLengthMm: number) {
 }
 
 function oppositeSide(value: string | undefined): "left" | "right" | undefined {
-  if (includesAny(value, ["左侧", "左边", "left"])) return "left";
-  if (includesAny(value, ["右侧", "右边", "right"])) return "right";
+  if (includesAny(value, ["左侧", "左边", "朝左", "向左", "left"])) return "left";
+  if (includesAny(value, ["右侧", "右边", "朝右", "向右", "right"])) return "right";
   return undefined;
 }
 
@@ -71,6 +71,37 @@ function diagnoseCamera(spec: VisualSpec, diagnostics: DoctorDiagnostic[]) {
       paths: ["camera.distance.scale", "composition.framing"],
       message: `镜头距离 ${distance} 与景别 ${framing} 难以同时成立。`,
       suggestion: "增大或缩短拍摄距离，或者选择与当前距离匹配的景别。",
+    });
+  }
+
+  if (
+    lens?.type === "macro" &&
+    (framing === "full-body" || framing === "wide" || framing === "extreme-wide")
+  ) {
+    diagnostics.push({
+      code: "camera-macro-framing-conflict",
+      level: "error",
+      category: "camera",
+      paths: ["camera.lens.type", "composition.framing"],
+      message: `微距镜头与 ${framing} 景别难以表达同一个明确拍摄意图。`,
+      suggestion: "微距镜头用于局部细节；若需要完整人物或环境，请改用普通镜头并增加拍摄距离。",
+    });
+  }
+
+  const maxFocalLength = lens?.maxFocalLengthMm ?? lens?.minFocalLengthMm;
+  if (
+    lens?.type === "telephoto" &&
+    maxFocalLength !== undefined &&
+    maxFocalLength >= 135 &&
+    (framing === "wide" || framing === "extreme-wide")
+  ) {
+    diagnostics.push({
+      code: "camera-telephoto-wide-framing-conflict",
+      level: "warning",
+      category: "camera",
+      paths: ["camera.lens", "composition.framing", "camera.distance"],
+      message: `${maxFocalLength}mm 长焦与 ${framing} 环境景别组合会强烈压缩空间，并需要很远的机位。`,
+      suggestion: "若要保留完整环境，请换用更短焦段；若要长焦压缩感，请明确 far 或 very-far 拍摄距离。",
     });
   }
 }
@@ -157,6 +188,49 @@ function diagnosePose(spec: VisualSpec, diagnostics: DoctorDiagnostic[]) {
       suggestion: "重写肢体位置，使双臂和双腿能够在指定基础姿势中自然成立。",
     });
   }
+
+
+  const contactText = spec.pose?.contactPoints?.join("；") ?? "";
+  const noSupport = includesAny(contactText, ["没有任何支撑", "没有支撑物", "无支撑"]);
+  const chairCarriesStandingBody =
+    base === "standing" &&
+    includesAny(contactText, ["重量完全由椅面支撑", "身体由椅子支撑"]) &&
+    includesAny(spec.pose?.legs, ["双脚离地", "脚离地"]);
+  if ((base === "sitting" && noSupport) || chairCarriesStandingBody) {
+    diagnostics.push({
+      code: "pose-support-conflict",
+      level: "error",
+      category: "pose",
+      paths: ["pose.base", "pose.legs", "pose.contactPoints"],
+      message: `基础姿势 ${base} 与承重或接触关系无法同时成立。`,
+      suggestion: "明确身体由哪个表面支撑；若人物悬空，请把姿势描述为跳跃、漂浮或由装置悬挂。",
+    });
+  } else if (
+    (base === "sitting" || base === "kneeling" || base === "lying") &&
+    (spec.pose?.contactPoints?.length ?? 0) === 0
+  ) {
+    diagnostics.push({
+      code: "pose-support-unspecified",
+      level: "suggestion",
+      category: "pose",
+      paths: ["pose.base", "pose.contactPoints"],
+      message: `${base} 姿势没有说明身体与环境的支撑或接触点。`,
+      suggestion: "补充臀部、膝盖、背部、手掌或脚部接触的表面，让姿势和空间关系更稳定。",
+    });
+  }
+
+  const torsoSide = oppositeSide(spec.pose?.torso);
+  const gazeSide = oppositeSide(spec.pose?.gaze);
+  if (spec.pose?.orientation === "profile" && torsoSide && gazeSide && torsoSide !== gazeSide) {
+    diagnostics.push({
+      code: "pose-direction-gaze-conflict",
+      level: "warning",
+      category: "pose",
+      paths: ["pose.orientation", "pose.torso", "pose.gaze"],
+      message: "侧面姿势中的身体朝向与目光左右方向相反，可能存在坐标系歧义。",
+      suggestion: "说明左右是以人物自身还是画面为准，或明确人物正在回头反向看。",
+    });
+  }
 }
 
 function diagnoseSpatialAndWardrobe(spec: VisualSpec, diagnostics: DoctorDiagnostic[]) {
@@ -206,6 +280,16 @@ function diagnoseSpatialAndWardrobe(spec: VisualSpec, diagnostics: DoctorDiagnos
 
     const poseText = [spec.pose?.legs, ...(spec.pose?.contactPoints ?? [])].join("；");
     const explicitlyBarefoot = includesAny(poseText, ["未穿鞋", "没有穿鞋", "不穿鞋", "赤脚", "光脚"]);
+    if (garment.category === "footwear" && garment.worn === true && explicitlyBarefoot) {
+      diagnostics.push({
+        code: "wardrobe-barefoot-footwear-conflict",
+        level: "error",
+        category: "wardrobe",
+        paths: [`${garmentPath}.worn`, "pose.legs", "pose.contactPoints"],
+        message: `${garment.name}被标记为正在穿戴，但人物姿势明确要求赤脚。`,
+        suggestion: "将鞋子的 worn 改为 false 并指定放置位置，或者删除赤脚描述。",
+      });
+    }
     if (
       garment.category === "footwear" &&
       garment.worn === false &&
@@ -253,6 +337,44 @@ function diagnoseSpatialAndWardrobe(spec: VisualSpec, diagnostics: DoctorDiagnos
   }
 }
 
+function diagnoseConstraints(spec: VisualSpec, diagnostics: DoctorDiagnostic[]) {
+  const wardrobeLocked = spec.locks.wardrobe || spec.wardrobe?.locked;
+  const keepWardrobe = spec.constraints.some(
+    ({ target, requirement }) =>
+      target.startsWith("wardrobe") && includesAny(requirement, ["保持", "不变", "锁定"]),
+  );
+  const wardrobeStateChanges = spec.wardrobe?.garments?.some(
+    ({ worn, placementWhenNotWorn }) => worn === false || Boolean(placementWhenNotWorn),
+  );
+  if (wardrobeLocked && keepWardrobe && wardrobeStateChanges) {
+    diagnostics.push({
+      code: "locked-module-change-conflict",
+      level: "error",
+      category: "constraint",
+      paths: ["locks.wardrobe", "constraints", "wardrobe.garments"],
+      message: "服装被要求保持不变，但同一 VisualSpec 又要求脱下或移动服装。",
+      suggestion: "二选一：保留 wardrobe 锁并删除换装动作，或解锁 wardrobe 后再描述服装变化。",
+    });
+  }
+
+  for (const constraint of spec.constraints) {
+    const conflicts = spec.negativeConstraints.find(
+      ({ target, avoid }) =>
+        target === constraint.target &&
+        avoid.some((term) => constraint.requirement.includes(term)),
+    );
+    if (!conflicts) continue;
+    diagnostics.push({
+      code: "positive-negative-constraint-conflict",
+      level: "error",
+      category: "constraint",
+      paths: ["constraints", "negativeConstraints"],
+      message: `字段 ${constraint.target} 同时要求并禁止了相同内容。`,
+      suggestion: "删除其中一条，或者重写 requirement 与 avoid，使两者表达不同目标。",
+    });
+  }
+}
+
 /** Runs deterministic, side-effect-free cross-field diagnostics. */
 export function diagnoseVisualSpec(input: unknown): DoctorResult {
   const spec = VisualSpecSchema.parse(input);
@@ -262,6 +384,7 @@ export function diagnoseVisualSpec(input: unknown): DoctorResult {
   diagnoseComposition(spec, diagnostics);
   diagnosePose(spec, diagnostics);
   diagnoseSpatialAndWardrobe(spec, diagnostics);
+  diagnoseConstraints(spec, diagnostics);
 
   const summary = {
     errors: diagnostics.filter(({ level }) => level === "error").length,

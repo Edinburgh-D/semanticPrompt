@@ -5,6 +5,7 @@ import {
   ChinesePromptFixtureSchema,
 } from "../fixtures/chinese-prompt-corpus.fixture";
 import { parseVisualIntent } from "../parser";
+import { diagnoseVisualSpec, DiagnosticCodeSchema } from "../doctor";
 import { VisualSpecSchema } from "../schemas/visual-spec";
 
 function valueAtPath(value: unknown, path: string): unknown {
@@ -65,6 +66,17 @@ describe("Chinese prompt fixture corpus", () => {
           isSubset(actual, expected),
           `${promptFixture.id} did not satisfy ${path}\nExpected: ${JSON.stringify(expected)}\nReceived: ${JSON.stringify(actual)}`,
         ).toBe(true);
+      }
+    }
+  });
+
+  it("detects every conflict declared by the fixture corpus", () => {
+    for (const promptFixture of CHINESE_PROMPT_CORPUS) {
+      const result = diagnoseVisualSpec(promptFixture.expected);
+      const codes = result.diagnostics.map(({ code }) => code);
+      for (const code of promptFixture.expectedDoctorCodes) {
+        expect(DiagnosticCodeSchema.safeParse(code).success, `${code} must be a registered diagnostic code`).toBe(true);
+        expect(codes, `${promptFixture.id} did not report ${code}`).toContain(code);
       }
     }
   });

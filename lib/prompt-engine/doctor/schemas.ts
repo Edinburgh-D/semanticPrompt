@@ -10,22 +10,31 @@ export const DiagnosticCategorySchema = z.enum([
   "pose",
   "spatial",
   "wardrobe",
+  "constraint",
 ]);
 
 export const DiagnosticCodeSchema = z.enum([
   "camera-lens-type-mismatch",
   "camera-distance-framing-conflict",
+  "camera-macro-framing-conflict",
+  "camera-telephoto-wide-framing-conflict",
   "composition-crop-framing-conflict",
   "composition-view-pose-conflict",
   "composition-camera-distance-unspecified",
   "pose-action-conflict",
   "pose-limb-action-conflict",
+  "pose-support-conflict",
+  "pose-support-unspecified",
+  "pose-direction-gaze-conflict",
   "spatial-unplaced-item",
   "spatial-placement-conflict",
   "wardrobe-worn-placement-conflict",
   "wardrobe-duplicate-state-conflict",
   "wardrobe-color-conflict",
   "wardrobe-pose-state-conflict",
+  "wardrobe-barefoot-footwear-conflict",
+  "locked-module-change-conflict",
+  "positive-negative-constraint-conflict",
 ]);
 
 export const DoctorDiagnosticSchema = z
