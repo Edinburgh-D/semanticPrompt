@@ -32,10 +32,9 @@ A validated `VisualSpec` can eventually target GPT Image, Grok, Midjourney, or F
 - Diagnose ambiguity, omissions, and internal conflicts.
 - Compile a validated specification through one complete model adapter.
 - Return the compiled prompt together with actionable diagnostic messages.
-- Capture simple user feedback about whether the result matched intent.
 - Preserve architecture interfaces for other named adapters without implementing them prematurely.
 
-The current repository milestone implements the pure TypeScript engine path from deterministic Chinese parsing through diagnostics, model-neutral compilation, and a GPT Image adapter. It does not implement the application UI or call an image model API.
+The current repository milestone implements the pure TypeScript engine path, a local `/studio` workbench, module-level editing and locks, before/after Diff, and an optional LLM Parser enhancement. The enhancement accepts either an OpenAI or DeepSeek server-side key and never replaces an explicitly recognized rule field. No image-generation API is called.
 
 ## Explicitly out of scope
 
@@ -45,8 +44,8 @@ The current repository milestone implements the pure TypeScript engine path from
 - Multi-tenancy or complex permissions
 - PostgreSQL and Drizzle persistence during the current milestone
 - User accounts and authentication during the current milestone
-- UI implementation during the current milestone
-- LLM or image-model API integration during the current milestone
+- History and feedback persistence during the current milestone
+- Image-model API integration during the current milestone
 - Image analysis and reference-image extraction during the current milestone
 - Multiple production-ready model adapters in the first MVP iteration
 

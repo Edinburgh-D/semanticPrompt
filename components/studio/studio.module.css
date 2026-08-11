@@ -28,6 +28,7 @@
 .quietButton,
 .textButton,
 .primaryButton,
+.llmButton,
 .topStatus {
   display: flex;
   align-items: center;
@@ -228,6 +229,7 @@
 }
 
 .primaryButton,
+.llmButton,
 .quietButton,
 .copyButton,
 .lockButton,
@@ -240,13 +242,30 @@
 }
 
 .primaryButton {
-  inline-size: 100%;
   border: 1px solid var(--color-accent);
   background: var(--color-accent);
   color: var(--color-accent-ink);
 }
 
+.runActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.llmButton {
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-ink-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-weight: 650;
+  transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), transform var(--dur-instant) var(--ease-out);
+}
+
 .primaryButton:active,
+.llmButton:active,
 .quietButton:active,
 .copyButton:active,
 .lockButton:active,
@@ -255,6 +274,7 @@
 }
 
 .primaryButton:disabled,
+.llmButton:disabled,
 .quietButton:disabled,
 .copyButton:disabled,
 .jsonEditor:disabled {
@@ -624,6 +644,11 @@
     color: var(--color-accent-ink);
   }
 
+  .llmButton:hover:not(:disabled) {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
   .quietButton:hover:not(:disabled),
   .copyButton:hover:not(:disabled),
   .lockButton:hover:not(:disabled),
@@ -712,6 +737,7 @@
 
 @media (pointer: coarse) {
   .primaryButton,
+  .llmButton,
   .quietButton,
   .copyButton,
   .lockButton,
@@ -726,4 +752,3 @@
     animation: none;
   }
 }
-

@@ -35,6 +35,7 @@ export function StudioWorkspace() {
     status,
     error,
     parserOutput,
+    enhancedOutput,
     draftSpec,
     doctor,
     compiledPrompt,
@@ -42,6 +43,7 @@ export function StudioWorkspace() {
     setSourceText,
     setModel,
     parseDeterministically,
+    enhanceWithLlm,
     updateModule,
     toggleLock,
     resetDraft,
@@ -74,7 +76,7 @@ export function StudioWorkspace() {
         </div>
         <div className={styles.topStatus} data-status={status}>
           <CircleDashed aria-hidden="true" size={15} />
-          {status === "parsing" ? "解析中" : status === "error" ? "需要处理" : "本地工作区"}
+          {status === "parsing" ? "规则解析中" : status === "enhancing" ? "LLM 补全中" : status === "error" ? "需要处理" : "本地工作区"}
         </div>
       </header>
 
@@ -114,15 +116,26 @@ export function StudioWorkspace() {
             <small>本阶段仅 GPT Image Adapter 可编译。</small>
           </div>
 
-          <button
-            className={styles.primaryButton}
-            disabled={status === "parsing" || sourceText.trim().length === 0}
-            onClick={parseDeterministically}
-            type="button"
-          >
-            <Play aria-hidden="true" fill="currentColor" size={15} />
-            {status === "parsing" ? "正在解析" : "运行完整管线"}
-          </button>
+          <div className={styles.runActions}>
+            <button
+              className={styles.primaryButton}
+              disabled={status === "parsing" || status === "enhancing" || sourceText.trim().length === 0}
+              onClick={parseDeterministically}
+              type="button"
+            >
+              <Play aria-hidden="true" fill="currentColor" size={15} />
+              {status === "parsing" ? "正在解析" : "规则解析"}
+            </button>
+            <button
+              className={styles.llmButton}
+              disabled={status === "parsing" || status === "enhancing" || sourceText.trim().length === 0}
+              onClick={enhanceWithLlm}
+              type="button"
+            >
+              <Sparkles aria-hidden="true" size={15} />
+              {status === "enhancing" ? "补全中" : "LLM 补全"}
+            </button>
+          </div>
 
           {error ? <p className={styles.globalError} role="alert">{error}</p> : null}
 
@@ -133,6 +146,14 @@ export function StudioWorkspace() {
             <strong>{parserOutput?.ambiguities.length ?? 0}</strong>
             <span>待补信息</span>
             <strong>{parserOutput?.missingInformation.length ?? 0}</strong>
+            <span>字段来源</span>
+            <strong>
+              {enhancedOutput
+                ? `规则 ${enhancedOutput.provenance.filter(({ source }) => source === "rule").length} · LLM ${enhancedOutput.provenance.filter(({ source }) => source === "llm").length}`
+                : "仅规则"}
+            </strong>
+            <span>LLM Provider</span>
+            <strong>{enhancedOutput ? `${enhancedOutput.llm.provider} / ${enhancedOutput.llm.model}` : "—"}</strong>
           </div>
         </section>
 
@@ -239,4 +260,3 @@ export function StudioWorkspace() {
     </main>
   );
 }
-

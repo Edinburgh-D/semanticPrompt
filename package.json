@@ -19,6 +19,7 @@
     "clsx": "latest",
     "lucide-react": "latest",
     "next": "latest",
+    "openai": "^7.4.0",
     "react": "latest",
     "react-dom": "latest",
     "tailwind-merge": "latest",

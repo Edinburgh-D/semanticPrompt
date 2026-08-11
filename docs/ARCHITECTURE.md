@@ -47,7 +47,15 @@ Outputs:
 - A candidate `VisualSpec`
 - Parse-time ambiguities, missing-information records, and confidence metadata
 
-The current deterministic Chinese parser exposes `ParserInputSchema` and `ParserOutputSchema`. Its result contains the validated specification, blocking or non-blocking ambiguities, missing-information questions, an overall confidence score, and evidence-backed field confidence scores. It is conservative: unmatched details are not invented. A future LLM-backed parser must return the same validated contract.
+The deterministic Chinese parser exposes `ParserInputSchema` and `ParserOutputSchema`. Its result contains the validated specification, blocking or non-blocking ambiguities, missing-information questions, an overall confidence score, and evidence-backed field confidence scores. It is conservative: unmatched details are not invented.
+
+The optional enhanced path is deliberately ordered:
+
+```text
+Deterministic rules -> LLM supplement -> protected merge -> Zod validation -> VisualSpec
+```
+
+`parseVisualIntentEnhanced` receives an injected provider function, so the Prompt Engine stays pure and provider-neutral. Rule-recognized paths are authoritative: an LLM attempt to change one is ignored and recorded. Added fields carry `llm` provenance; deterministic fields carry `rule` provenance. The server adapter currently supports OpenAI Structured Outputs and DeepSeek JSON Output, selected only through server-side environment variables.
 
 ### VisualSpec
 
@@ -55,7 +63,7 @@ The current deterministic Chinese parser exposes `ParserInputSchema` and `Parser
 
 It owns domain structure and validation, not parsing behavior, diagnostics, or final prompt wording. Model-specific tokens, command flags, aspect-ratio syntax, quality switches, and provider policies do not belong here.
 
-Identity, wardrobe, pose, and environment remain independently addressable. Reference IDs and explicit identity locks provide the foundation for future multi-reference editing without implementing image analysis now.
+Identity, wardrobe, pose, camera, environment, and lighting remain independently lockable. Lock-aware merge operations preserve those modules during a reparse or LLM supplement. Reference IDs and explicit identity locks provide the foundation for future multi-reference editing without implementing image analysis now.
 
 ### Prompt Doctor
 
@@ -95,7 +103,8 @@ Output does not persist data or call an image model inside the pure prompt-engin
 
 ```text
 lib/prompt-engine/
-  parser/       Parser contracts and deterministic Chinese rules
+  parser/       Deterministic rules, LLM supplement merge, provenance
+  diff/         Lock-aware merge and leaf-level VisualSpec diff
   schemas/      VisualSpec and IdentitySpec
   doctor/       Diagnostic contracts and cross-field rules
   compiler/     Model-neutral CompiledVisualPlan
@@ -103,6 +112,13 @@ lib/prompt-engine/
   pipeline/     Doctor-gated compile orchestration
   fixtures/     Validated schema and compiler cases
   __tests__/    Unit and pipeline tests
+
+app/
+  studio/       Local three-rail Studio workbench
+  api/parse/    Server-only enhanced parser endpoint
+
+lib/server/
+  llm-parser-provider.ts  OpenAI/DeepSeek provider boundary
 ```
 
 `compileGptImagePrompt` is the current end-to-end pure-library entry point. It validates the `VisualSpec`, runs Doctor, refuses blocking errors, compiles the neutral plan, and renders the GPT Image prompt.
@@ -111,11 +127,15 @@ lib/prompt-engine/
 
 ```text
 Next.js application
-  -> orchestration/use-case code (future)
+  -> Zustand Studio orchestration
     -> pure TypeScript prompt engine
       -> Zod
 
-Model APIs, database, authentication, and UI must not be imported by the prompt engine.
+Next.js API route
+  -> provider adapter (OpenAI or DeepSeek)
+    -> injected prompt-engine enhancement function
+
+Model APIs, database, authentication, and UI must not be imported by the prompt engine. API keys remain server-side. If no LLM key exists, deterministic parsing remains fully usable.
 ```
 
 Dependencies flow inward toward domain schemas and pure transformations. Next.js may call the prompt engine; the prompt engine must never import Next.js. Database records may store a validated `VisualSpec`, but persistence models must not become the domain model.

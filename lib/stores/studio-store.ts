@@ -4,10 +4,12 @@ import {
   compileGptImagePrompt,
   diagnoseVisualSpec,
   diffVisualSpecs,
+  EnhancedParserOutputSchema,
   mergeVisualSpecRespectingLocks,
   parseVisualIntent,
   VisualSpecSchema,
   type DoctorResult,
+  type EnhancedParserOutput,
   type ParserOutput,
   type VisualSpec,
   type VisualSpecDiffEntry,
@@ -18,7 +20,7 @@ import {
 export const DEFAULT_STUDIO_SOURCE =
   "成年东亚女性，坐在老式住宅楼梯上，黑色无袖轻薄上衣，深色丝袜，鞋子脱下自然放在附近楼梯，正面全身构图，镜头距离人物数级台阶，28–32mm environmental fashion photography，低饱和灰白色调，昏暗但人物面部保持正常曝光，老式住宅楼梯环境。";
 
-export type StudioStatus = "idle" | "parsing" | "ready" | "error";
+export type StudioStatus = "idle" | "parsing" | "enhancing" | "ready" | "error";
 export type StudioModel = "gpt-image";
 
 interface StudioArtifacts {
@@ -32,6 +34,7 @@ interface StudioState {
   status: StudioStatus;
   error?: string;
   parserOutput?: ParserOutput;
+  enhancedOutput?: EnhancedParserOutput;
   baselineSpec?: VisualSpec;
   draftSpec?: VisualSpec;
   doctor?: DoctorResult;
@@ -40,6 +43,7 @@ interface StudioState {
   setSourceText: (value: string) => void;
   setModel: (value: StudioModel) => void;
   parseDeterministically: () => void;
+  enhanceWithLlm: () => Promise<void>;
   updateModule: (module: VisualSpecModule, value: unknown) => { ok: boolean; error?: string };
   toggleLock: (module: keyof VisualSpecLocks) => void;
   resetDraft: () => void;
@@ -58,6 +62,11 @@ function buildArtifacts(spec: VisualSpec): StudioArtifacts {
 function errorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return "发生未知错误。";
+}
+
+function apiErrorMessage(value: unknown): string | undefined {
+  if (typeof value !== "object" || value === null || !("error" in value)) return undefined;
+  return typeof value.error === "string" ? value.error : undefined;
 }
 
 export const useStudioStore = create<StudioState>((set, get) => ({
@@ -84,6 +93,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       set({
         status: "ready",
         parserOutput: { ...parserOutput, spec: nextSpec },
+        enhancedOutput: undefined,
         baselineSpec,
         draftSpec: nextSpec,
         doctor: artifacts.doctor,
@@ -92,6 +102,40 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       });
     } catch (error) {
       set({ status: "error", error: `解析失败：${errorMessage(error)}` });
+    }
+  },
+
+  enhanceWithLlm: async () => {
+    const { sourceText, draftSpec } = get();
+    set({ status: "enhancing", error: undefined });
+
+    try {
+      const response = await fetch("/api/parse", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text: sourceText, locale: "zh-CN" }),
+      });
+      const body: unknown = await response.json();
+      if (!response.ok) throw new Error(apiErrorMessage(body) ?? `服务返回 ${response.status}`);
+
+      const enhancedOutput = EnhancedParserOutputSchema.parse(body);
+      const nextSpec = draftSpec
+        ? mergeVisualSpecRespectingLocks(draftSpec, enhancedOutput.spec)
+        : enhancedOutput.spec;
+      const baselineSpec = draftSpec ?? nextSpec;
+      const artifacts = buildArtifacts(nextSpec);
+      set({
+        status: "ready",
+        parserOutput: { ...enhancedOutput, spec: nextSpec },
+        enhancedOutput: { ...enhancedOutput, spec: nextSpec },
+        baselineSpec,
+        draftSpec: nextSpec,
+        doctor: artifacts.doctor,
+        compiledPrompt: artifacts.compiledPrompt,
+        diff: diffVisualSpecs(baselineSpec, nextSpec),
+      });
+    } catch (error) {
+      set({ status: "error", error: errorMessage(error) });
     }
   },
 
@@ -148,4 +192,3 @@ export const useStudioStore = create<StudioState>((set, get) => ({
     });
   },
 }));
-
