@@ -17,6 +17,7 @@ export const ParserAmbiguitySchema = z
       "multiple-pose-cues",
       "multiple-framing-cues",
       "multiple-view-cues",
+      "underspecified-pose",
       "unclear-reference",
     ]),
     path: NonEmptyTextSchema,

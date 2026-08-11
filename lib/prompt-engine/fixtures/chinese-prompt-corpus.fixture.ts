@@ -610,4 +610,20 @@ export const CHINESE_PROMPT_CORPUS: readonly ChinesePromptFixture[] = [
     deterministicPaths: ["wardrobe.garments", "constraints", "locks.wardrobe"],
     expectedDoctorCodes: ["locked-module-change-conflict"],
   }),
+  fixture({
+    id: "poolside-bikini-wet-sensual-pose",
+    dimensions: ["wardrobe", "pose", "spatial"],
+    parserTier: "hybrid",
+    input: "一个身材火辣的女人穿着暴露的比基尼，在泳池边湿身，皮肤全是水珠，姿势很放开，胸部和臀部几乎全露，眼神很欲望。",
+    expected: {
+      subject: { category: "person", count: 1, description: "成年女性", ageGroup: "adult", genderPresentation: "女性", attributes: ["身材火辣"] },
+      appearance: { notableDetails: ["身体和皮肤呈湿润状态", "皮肤表面布满水珠"] },
+      wardrobe: { garments: [{ category: "swimwear", name: "比基尼", fit: "暴露度高", worn: true, details: ["胸部和臀部几乎全露"] }] },
+      pose: { description: "姿势很放开", expression: "眼神带有强烈欲望感" },
+      environment: { location: "泳池边" },
+      aesthetic: { mood: ["性感", "强烈欲望感"] },
+    },
+    deterministicPaths: ["subject", "appearance", "wardrobe", "pose.description", "pose.expression", "environment", "aesthetic.mood"],
+    llmOnlyPaths: ["pose.base", "pose.orientation", "pose.arms", "pose.legs"],
+  }),
 ] as const;

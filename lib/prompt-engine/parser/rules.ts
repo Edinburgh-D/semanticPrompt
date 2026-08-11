@@ -59,6 +59,7 @@ const GARMENT_RULES: readonly {
   category: Garment["category"];
   name: string;
 }[] = [
+  { terms: ["比基尼"], category: "swimwear", name: "比基尼" },
   { terms: ["无袖轻薄上衣"], category: "top", name: "无袖轻薄上衣" },
   { terms: ["无袖上衣"], category: "top", name: "无袖上衣" },
   { terms: ["高领毛衣"], category: "top", name: "高领毛衣" },
@@ -156,7 +157,7 @@ export function applyDeterministicRules(text: string): DeterministicRuleResult {
   const personTerms = ["人物", "人像", "女性", "女人", "男人", "男性", "男子", "女孩", "男孩", "模特", "她", "两个人"];
   const personEvidence = evidenceFor(text, personTerms);
   if (personEvidence.length > 0) {
-    const adult = includesAny(text, ["成年", "成人"]);
+    const adult = includesAny(text, ["成年", "成人", "女人", "男人"]);
     const olderAdult = includesAny(text, ["老年", "老人", "年长"]);
     const feminine = includesAny(text, ["女性", "女人", "女孩", "女模特", "她"]);
     const masculine = includesAny(text, ["男性", "男人", "男子", "男孩", "男模特"]);
@@ -174,6 +175,7 @@ export function applyDeterministicRules(text: string): DeterministicRuleResult {
       description: descriptors.join(""),
       ageGroup: adult ? "adult" : olderAdult ? "older-adult" : undefined,
       genderPresentation: feminine ? "女性" : masculine ? "男性" : undefined,
+      attributes: text.includes("身材火辣") ? ["身材火辣"] : undefined,
     };
     if (eastAsian) spec.identity = { face: { ancestryPresentation: "东亚" } };
     mark("subject", adult || eastAsian || count ? 0.95 : 0.86, personEvidence);
@@ -197,6 +199,19 @@ export function applyDeterministicRules(text: string): DeterministicRuleResult {
       message: "描述中出现了多个基础姿势，当前按首个明确姿势解析。",
       candidates: poseValues,
       severity: "blocking",
+    });
+  }
+
+  const openPoseMatch = text.match(/姿势(?:很|非常)?(?:放开|开放)/);
+  if (openPoseMatch) {
+    spec.pose = { ...spec.pose, description: openPoseMatch[0] };
+    mark("pose.description", 0.88, [openPoseMatch[0]]);
+    ambiguities.push({
+      code: "underspecified-pose",
+      path: "pose",
+      message: "“姿势很放开”表达了姿态氛围，但没有指定站、坐、躺或具体肢体位置。",
+      candidates: ["补充基础姿势", "补充手臂和腿部位置"],
+      severity: "warning",
     });
   }
 
@@ -261,6 +276,10 @@ export function applyDeterministicRules(text: string): DeterministicRuleResult {
   };
   if (text.includes("目光看向镜头")) setPoseText("gaze", "看向镜头", "目光看向镜头");
   else if (text.includes("看向画面左边")) setPoseText("gaze", "看向画面左边", "看向画面左边");
+  if (includesAny(text, ["眼神很欲望", "眼神充满欲望", "欲望感的眼神"])) {
+    spec.pose = { ...spec.pose, expression: "眼神带有强烈欲望感" };
+    mark("pose.expression", 0.9, evidenceFor(text, ["眼神很欲望", "眼神充满欲望", "欲望感的眼神"]));
+  }
   if (text.includes("背部挺直")) setPoseText("torso", "背部挺直", "背部挺直");
   else if (text.includes("身体略微前倾")) setPoseText("torso", "身体略微前倾", "身体略微前倾");
   else if (text.includes("身体朝右")) setPoseText("torso", "身体朝右", "身体朝右");
@@ -416,6 +435,8 @@ export function applyDeterministicRules(text: string): DeterministicRuleResult {
     if (rule.name === "衬衫" && text.includes("袖口卷到手肘")) garment.details = ["袖口卷到手肘"];
     if (rule.name === "领带" && text.includes("略微松开")) garment.condition = "略微松开";
     if (rule.name === "风衣" && text.includes("风衣敞开")) garment.condition = "敞开";
+    if (rule.name === "比基尼" && text.includes("暴露的比基尼")) garment.fit = "暴露度高";
+    if (rule.name === "比基尼" && text.includes("胸部和臀部几乎全露")) garment.details = ["胸部和臀部几乎全露"];
     garments.push(garment);
   }
   if (garments.length > 0) {
@@ -452,8 +473,28 @@ export function applyDeterministicRules(text: string): DeterministicRuleResult {
   } else if (text.includes("场景换成雨夜便利店门口")) {
     spec.environment = { ...spec.environment, settingType: "exterior", location: "雨夜便利店门口", weather: "雨", timeOfDay: "夜晚" };
     mark("environment", 0.96, ["雨夜便利店门口"]);
+  } else if (includesAny(text, ["泳池边", "泳池旁"])) {
+    spec.environment = { ...spec.environment, location: "泳池边" };
+    mark("environment", 0.96, evidenceFor(text, ["泳池边", "泳池旁"]));
   }
   if (text.includes("日落黄金时刻")) spec.environment = { ...spec.environment, timeOfDay: "日落" };
+
+  const notableDetails: string[] = [];
+  if (text.includes("湿身")) notableDetails.push("身体和皮肤呈湿润状态");
+  if (includesAny(text, ["皮肤全是水珠", "皮肤布满水珠", "皮肤上都是水珠"])) notableDetails.push("皮肤表面布满水珠");
+  if (notableDetails.length > 0) {
+    spec.appearance = { ...spec.appearance, notableDetails };
+    mark("appearance.notableDetails", 0.96, evidenceFor(text, ["湿身", "皮肤全是水珠", "皮肤布满水珠", "皮肤上都是水珠"]));
+  }
+
+  if (includesAny(text, ["身材火辣", "暴露的比基尼", "眼神很欲望", "眼神充满欲望"])) {
+    const mood = [
+      includesAny(text, ["身材火辣", "暴露的比基尼"]) ? "性感" : undefined,
+      includesAny(text, ["眼神很欲望", "眼神充满欲望"]) ? "强烈欲望感" : undefined,
+    ].filter((value): value is string => value !== undefined);
+    spec.aesthetic = { ...spec.aesthetic, mood };
+    mark("aesthetic.mood", 0.88, evidenceFor(text, ["身材火辣", "暴露的比基尼", "眼神很欲望", "眼神充满欲望"]));
+  }
 
   const lighting: NonNullable<VisualSpecInput["lighting"]> = { ...spec.lighting };
   let hasLighting = false;

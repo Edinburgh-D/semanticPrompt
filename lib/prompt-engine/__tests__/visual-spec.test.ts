@@ -29,6 +29,15 @@ describe("VisualSpecSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("supports swimwear and an intentionally underspecified pose description", () => {
+    const result = VisualSpecSchema.safeParse({
+      wardrobe: { garments: [{ category: "swimwear", name: "比基尼", worn: true }] },
+      pose: { description: "姿势很放开" },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it("accepts missing optional fields and applies neutral defaults", () => {
     const result = VisualSpecSchema.parse({});
 

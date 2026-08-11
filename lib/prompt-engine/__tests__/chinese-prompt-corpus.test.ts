@@ -6,6 +6,7 @@ import {
 } from "../fixtures/chinese-prompt-corpus.fixture";
 import { parseVisualIntent } from "../parser";
 import { diagnoseVisualSpec, DiagnosticCodeSchema } from "../doctor";
+import { compileGptImagePrompt } from "../pipeline";
 import { VisualSpecSchema } from "../schemas/visual-spec";
 
 function valueAtPath(value: unknown, path: string): unknown {
@@ -31,9 +32,9 @@ function isSubset(actual: unknown, expected: unknown): boolean {
 }
 
 describe("Chinese prompt fixture corpus", () => {
-  it("contains 47 unique, validated real-world fixtures", () => {
-    expect(CHINESE_PROMPT_CORPUS).toHaveLength(47);
-    expect(new Set(CHINESE_PROMPT_CORPUS.map(({ id }) => id))).toHaveLength(47);
+  it("contains 48 unique, validated real-world fixtures", () => {
+    expect(CHINESE_PROMPT_CORPUS).toHaveLength(48);
+    expect(new Set(CHINESE_PROMPT_CORPUS.map(({ id }) => id))).toHaveLength(48);
 
     for (const promptFixture of CHINESE_PROMPT_CORPUS) {
       expect(ChinesePromptFixtureSchema.safeParse(promptFixture).success).toBe(true);
@@ -79,5 +80,20 @@ describe("Chinese prompt fixture corpus", () => {
         expect(codes, `${promptFixture.id} did not report ${code}`).toContain(code);
       }
     }
+  });
+
+  it("preserves the explicit poolside description through the complete pipeline", () => {
+    const promptFixture = CHINESE_PROMPT_CORPUS.find(({ id }) => id === "poolside-bikini-wet-sensual-pose");
+    expect(promptFixture).toBeDefined();
+    if (!promptFixture) return;
+
+    const parsed = parseVisualIntent({ text: promptFixture.input });
+    const prompt = compileGptImagePrompt(parsed.spec).output.prompt;
+
+    expect(parsed.ambiguities.map(({ code }) => code)).toContain("underspecified-pose");
+    expect(prompt).toContain("category: swimwear");
+    expect(prompt).toContain("身体和皮肤呈湿润状态");
+    expect(prompt).toContain("pose description: 姿势很放开");
+    expect(prompt).toContain("location: 泳池边");
   });
 });

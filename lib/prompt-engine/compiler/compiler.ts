@@ -167,6 +167,7 @@ function compilePose(spec: VisualSpec, sections: CompiledSection[]) {
   const pose = spec.pose;
   if (!pose) return;
   addSection(sections, "pose", [
+    labeled("pose description", pose.description),
     labeled("base pose", pose.base),
     labeled("body orientation", pose.orientation),
     labeled("gaze", pose.gaze),

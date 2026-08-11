@@ -49,7 +49,7 @@ export const AppearanceSpecSchema = z
 export const GarmentSpecSchema = z
   .object({
     category: z
-      .enum(["top", "bottom", "dress", "outerwear", "underwear", "hosiery", "footwear", "accessory", "other"])
+      .enum(["top", "bottom", "dress", "outerwear", "underwear", "swimwear", "hosiery", "footwear", "accessory", "other"])
       .optional(),
     name: NonEmptyTextSchema,
     color: NonEmptyTextSchema.optional(),
@@ -74,6 +74,7 @@ export const WardrobeSpecSchema = z
 
 export const PoseSpecSchema = z
   .object({
+    description: NonEmptyTextSchema.optional(),
     base: z
       .enum(["standing", "sitting", "kneeling", "lying", "crouching", "moving", "other"])
       .optional(),
