@@ -1,0 +1,22 @@
+{
+  "version": "1.1.0",
+  "checkedAt": "2026-08-11",
+  "project": {
+    "framework": "Next.js 16 App Router",
+    "styling": "Tailwind CSS v4 plus CSS Modules",
+    "existingDesignSystem": false,
+    "existingPalette": false,
+    "existingTypography": false,
+    "existingMotionLibrary": false
+  },
+  "selection": {
+    "audience": "Chinese-speaking visual creators who need control without prompt jargon",
+    "primaryTask": "Parse quickly, inspect deeply, edit safely, compile once",
+    "tone": "technical, utilitarian, modern-minimal",
+    "macrostructure": "Workbench",
+    "theme": "Cobalt",
+    "nav": "N9 edge-aligned minimal",
+    "footer": "Ft2 inline rule single-line",
+    "imagery": "none"
+  }
+}
