@@ -1,5 +1,5 @@
-/* Macrostructure: Workbench — fixed topbar, three asymmetric task rails, inline status footer. */
-/* Pre-emit critique: dense JSON editing needs hierarchy through rules and type scale; panels stay flat, the single filled accent is reserved for running the compiler. */
+/* Hallmark · macrostructure: Workbench · genre: modern-minimal · tone: technical/utilitarian · anchor: cobalt · structure: three asymmetric task rails. */
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 */
 .shell {
   min-height: 100dvh;
   background: var(--color-paper);
@@ -65,7 +65,7 @@
   align-items: center;
   gap: var(--space-2);
   color: var(--color-neutral);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.68rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -89,7 +89,8 @@
   color: var(--color-accent);
 }
 
-.topStatus[data-status="parsing"] svg {
+.topStatus[data-status="parsing"] svg,
+.topStatus[data-status="enhancing"] svg {
   animation: rotate 800ms linear infinite;
 }
 
@@ -127,6 +128,7 @@
 .panelHeading h1,
 .panelHeading h2,
 .panelHeadingCompact h2 {
+  min-width: 0;
   margin: 0;
   overflow-wrap: anywhere;
   font-family: var(--font-display);
@@ -147,7 +149,7 @@
 }
 
 .panelHeading p {
-  max-inline-size: 36rem;
+  max-inline-size: 60ch;
   margin: var(--space-3) 0 0;
   color: var(--color-neutral);
   font-size: 0.86rem;
@@ -164,7 +166,7 @@
 .eyebrow {
   display: block;
   color: var(--color-accent);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.66rem;
   font-weight: 650;
   letter-spacing: 0.11em;
@@ -304,7 +306,7 @@
   padding-block-start: var(--space-4);
   border-block-start: 1px solid var(--color-rule-2);
   color: var(--color-neutral);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.69rem;
 }
 
@@ -319,7 +321,7 @@
 .changeCount {
   flex: 0 0 auto;
   border-radius: 999px;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.65rem;
   font-weight: 650;
   white-space: nowrap;
@@ -327,14 +329,14 @@
 
 .schemaBadge,
 .changeCount {
-  padding: 0.28rem 0.48rem;
+  padding: var(--space-1) var(--space-2);
   border: 1px solid var(--color-rule-2);
   color: var(--color-neutral);
 }
 
 .passBadge,
 .blockBadge {
-  padding: 0.3rem 0.5rem;
+  padding: var(--space-1) var(--space-2);
 }
 
 .passBadge {
@@ -473,7 +475,7 @@
 }
 
 .emptyState span {
-  font-family: var(--font-mono);
+  font-family: var(--font-display);
   font-size: 2rem;
 }
 
@@ -505,7 +507,7 @@
 }
 
 .diagnostic > svg {
-  margin-block-start: 0.12rem;
+  margin-block-start: var(--space-1);
   color: var(--color-neutral);
 }
 
@@ -574,7 +576,7 @@
 .diffList li > span {
   float: inline-end;
   color: var(--color-accent-hover);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.62rem;
   text-transform: uppercase;
 }
@@ -609,7 +611,7 @@
   border-block-start: 1px solid var(--color-rule-2);
   background: var(--color-paper);
   color: var(--color-neutral);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.6rem;
   letter-spacing: 0.04em;
 }

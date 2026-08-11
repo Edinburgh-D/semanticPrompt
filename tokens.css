@@ -1,5 +1,5 @@
-/* Macrostructure: Workbench — topbar + intent rail + spec canvas + diagnostic rail + inline status. */
-/* Pre-emit critique: the asymmetry comes from task priority, not decoration; one cobalt action and hairline-separated surfaces keep a dense compiler legible without card soup. */
+/* Hallmark · macrostructure: Workbench · genre: modern-minimal · tone: technical/utilitarian · anchor: cobalt · nav: N9 · footer: Ft2 · contrast: pass (40–41) · slop: pass (42–49) · mobile: static-pass (34, 49–57). */
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 */
 :root {
   --font-display: "Space Grotesk Variable", "Aptos Display", sans-serif;
   --font-body: "IBM Plex Sans Variable", "Microsoft YaHei", sans-serif;
@@ -10,15 +10,15 @@
   --color-paper-3: oklch(93.5% 0.013 255);
   --color-ink: oklch(20% 0.025 258);
   --color-ink-2: oklch(33% 0.028 258);
-  --color-neutral: oklch(44% 0.025 258);
-  --color-muted: oklch(51% 0.022 258);
+  --color-neutral: oklch(39% 0.025 258);
+  --color-muted: oklch(44% 0.022 258);
   --color-rule: oklch(88% 0.015 255);
   --color-rule-2: oklch(78% 0.022 255);
   --color-accent: oklch(49% 0.23 262);
   --color-accent-hover: oklch(43% 0.22 262);
   --color-accent-soft: oklch(94% 0.035 262);
   --color-accent-ink: oklch(99% 0.003 255);
-  --color-focus: oklch(39% 0.2 262);
+  --color-focus: oklch(10% 0.03 262);
   --color-error: oklch(48% 0.19 28);
   --color-error-soft: oklch(95% 0.035 28);
   --color-warning: oklch(43% 0.11 74);
@@ -49,4 +49,3 @@
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
-

@@ -158,11 +158,9 @@ export function StudioWorkspace() {
         </section>
 
         <section className={`${styles.panel} ${styles.specPanel}`} aria-labelledby="spec-title">
+          <span className={styles.eyebrow}>02 / VISUALSPEC</span>
           <div className={styles.panelHeadingCompact}>
-            <div>
-              <span className={styles.eyebrow}>02 / VISUALSPEC</span>
-              <h2 id="spec-title">结构化视觉意图</h2>
-            </div>
+            <h2 id="spec-title">结构化视觉意图</h2>
             <span className={styles.schemaBadge}>schema 1.0</span>
           </div>
           <VisualSpecEditor
@@ -175,11 +173,9 @@ export function StudioWorkspace() {
 
         <aside className={`${styles.panel} ${styles.outputPanel}`} aria-label="诊断和编译结果">
           <section className={styles.outputSection} aria-labelledby="doctor-title">
+            <span className={styles.eyebrow}>03 / DOCTOR</span>
             <div className={styles.panelHeadingCompact}>
-              <div>
-                <span className={styles.eyebrow}>03 / DOCTOR</span>
-                <h2 id="doctor-title">诊断</h2>
-              </div>
+              <h2 id="doctor-title">诊断</h2>
               {doctor ? (
                 <span className={doctor.canCompile ? styles.passBadge : styles.blockBadge}>
                   {doctor.canCompile ? "可编译" : "已阻断"}
@@ -209,11 +205,9 @@ export function StudioWorkspace() {
           </section>
 
           <section className={styles.outputSection} aria-labelledby="prompt-title">
+            <span className={styles.eyebrow}>04 / COMPILED</span>
             <div className={styles.panelHeadingCompact}>
-              <div>
-                <span className={styles.eyebrow}>04 / COMPILED</span>
-                <h2 id="prompt-title">GPT Image Prompt</h2>
-              </div>
+              <h2 id="prompt-title">GPT Image Prompt</h2>
               <button
                 className={styles.copyButton}
                 disabled={!compiledPrompt}
@@ -228,11 +222,9 @@ export function StudioWorkspace() {
           </section>
 
           <section className={styles.outputSection} aria-labelledby="diff-title">
+            <span className={styles.eyebrow}>05 / DIFF</span>
             <div className={styles.panelHeadingCompact}>
-              <div>
-                <span className={styles.eyebrow}>05 / DIFF</span>
-                <h2 id="diff-title">修改记录</h2>
-              </div>
+              <h2 id="diff-title">修改记录</h2>
               <span className={styles.changeCount}>{diff.length}</span>
             </div>
             {diff.length ? (

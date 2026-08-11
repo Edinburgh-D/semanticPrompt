@@ -6,7 +6,13 @@
       "decision": "Adopt Workbench + Cobalt for Studio",
       "reason": "The product is a dense transformation tool whose three pipeline stages need simultaneous visibility.",
       "motion": ["panel state crossfade", "copy-label feedback"],
-      "imagery": "none"
+      "imagery": "none",
+      "audit": {
+        "critique": "P5 H5 E4 S5 R5 V5",
+        "contrast": "pass; minimum checked pair focus/accent = 3.10:1, body pairs >= 6.38:1",
+        "staticGates": "pass 1-58",
+        "runtimeVisualCheck": "pending: in-app browser runtime unavailable on this machine"
+      }
     }
   ]
 }

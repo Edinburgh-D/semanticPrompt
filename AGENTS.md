@@ -71,3 +71,6 @@ Do not create repositories, service layers, event buses, queues, microservices, 
 - Do not add payment, membership, community, marketplace, ComfyUI, LoRA, multi-tenant, complex authorization, database, user, UI, or LLM integration until explicitly requested.
 - Every modification must leave `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` passing.
 - Update relevant documentation when a domain boundary or public schema changes.
+- Record every completed update as a focused local Git commit with an imperative Conventional Commit message.
+- Keep secrets, `.env` files, build output, logs, and dependency directories out of Git. Commit `.env.example` only with empty values.
+- Push completed, verified commits to `origin/main` when network access and repository authentication are available; never rewrite shared history unless explicitly requested.
