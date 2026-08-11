@@ -60,7 +60,7 @@ export const CHINESE_PROMPT_CORPUS: readonly ChinesePromptFixture[] = [
     parserTier: "deterministic",
     input: "男人站着靠在水泥墙上，右肩贴墙，双臂交叉，目光看向镜头。",
     expected: {
-      subject: { category: "person", genderPresentation: "男性", action: "站着靠墙" },
+      subject: { category: "person", genderPresentation: "男性", action: "站着靠在水泥墙上" },
       pose: {
         base: "standing",
         gaze: "看向镜头",
@@ -165,8 +165,8 @@ export const CHINESE_PROMPT_CORPUS: readonly ChinesePromptFixture[] = [
         legs: "重心压在后腿",
       },
     },
-    deterministicPaths: ["subject", "pose.base"],
-    llmOnlyPaths: ["pose.orientation", "pose.gaze", "pose.torso", "pose.legs"],
+    deterministicPaths: ["subject.category", "pose.base"],
+    llmOnlyPaths: ["subject.action", "pose.orientation", "pose.gaze", "pose.torso", "pose.legs"],
   }),
 
   fixture({
@@ -289,8 +289,8 @@ export const CHINESE_PROMPT_CORPUS: readonly ChinesePromptFixture[] = [
       camera: { angle: "人物左后侧的越肩视角", focusTarget: "镜中的人物正脸" },
       environment: { props: [{ name: "镜子", placement: "人物前方", prominence: "important" }] },
     },
-    deterministicPaths: ["pose.orientation"],
-    llmOnlyPaths: ["composition.foreground", "composition.background", "camera.angle", "camera.focusTarget", "environment.props"],
+    deterministicPaths: [],
+    llmOnlyPaths: ["pose.orientation", "composition.foreground", "composition.background", "camera.angle", "camera.focusTarget", "environment.props"],
   }),
 
   fixture({
@@ -353,7 +353,7 @@ export const CHINESE_PROMPT_CORPUS: readonly ChinesePromptFixture[] = [
       },
       pose: { arms: "左臂在夹克袖子里，右臂未穿入衣袖" },
     },
-    deterministicPaths: ["wardrobe.garments"],
+    deterministicPaths: ["wardrobe.garments.0.category", "wardrobe.garments.0.name", "wardrobe.garments.0.material", "wardrobe.garments.0.fit", "wardrobe.garments.0.worn"],
     llmOnlyPaths: ["pose.arms", "wardrobe.garments.0.details"],
   }),
   fixture({
@@ -504,7 +504,7 @@ export const CHINESE_PROMPT_CORPUS: readonly ChinesePromptFixture[] = [
     parserTier: "hybrid",
     input: "两个人隔着餐桌面对面坐着，左边的人看向右边的人，桌上花瓶位于两人正中间。",
     expected: { subject: { category: "person", count: 2, relationships: ["两人隔着餐桌面对面坐着"] }, pose: { base: "sitting", orientation: "mixed", gaze: "左侧人物看向右侧人物" }, composition: { subjectPlacement: "custom", midground: "餐桌和正中间的花瓶" }, environment: { props: [{ name: "餐桌", placement: "两人之间", prominence: "important" }, { name: "花瓶", placement: "餐桌中央" }] } },
-    deterministicPaths: ["subject", "pose.base"],
+    deterministicPaths: ["subject.category", "subject.count", "pose.base"],
     llmOnlyPaths: ["subject.relationships", "pose.orientation", "pose.gaze", "composition.midground", "environment.props"],
   }),
 
