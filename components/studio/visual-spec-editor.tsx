@@ -148,6 +148,10 @@ export function VisualSpecEditor({ spec, onCommit, onToggleLock, onReset }: Visu
           撤销手动修改
         </button>
       </div>
+      <div className={styles.lockGuide}>
+        <Lock aria-hidden="true" size={16} />
+        <p><strong>想只改一部分？</strong>先锁定人物、姿势或环境，再修改左侧原文并点“解析画面”。例如：锁人物后只换衣服；锁姿势后只换场景。</p>
+      </div>
       {VISUAL_SPEC_MODULES.map((module) => (
         <ModuleEditor
           key={`${module}-${JSON.stringify(spec[module])}`}

@@ -3,6 +3,13 @@
   "entries": [
     {
       "date": "2026-08-11",
+      "macrostructure": "Workbench",
+      "theme": "Cobalt",
+      "enrichment": "none",
+      "brief": "Clarify Studio first-use flow with examples and lock guidance"
+    },
+    {
+      "date": "2026-08-11",
       "decision": "Adopt Workbench + Cobalt for Studio",
       "reason": "The product is a dense transformation tool whose three pipeline stages need simultaneous visibility.",
       "motion": ["panel state crossfade", "copy-label feedback"],

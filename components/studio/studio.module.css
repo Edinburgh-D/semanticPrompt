@@ -1,5 +1,5 @@
-/* Hallmark · macrostructure: Workbench · genre: modern-minimal · tone: technical/utilitarian · anchor: cobalt · structure: three asymmetric task rails. */
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 */
+/* Hallmark · macrostructure: Workbench · genre: modern-minimal · tone: technical/utilitarian · anchor: cobalt · structure: three asymmetric task rails · iteration: guided onboarding. */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
 .shell {
   min-height: 100dvh;
   background: var(--color-paper);
@@ -122,7 +122,7 @@
 }
 
 .panelHeading {
-  margin-block-end: var(--space-8);
+  margin-block-end: var(--space-5);
 }
 
 .panelHeading h1,
@@ -156,11 +156,122 @@
   line-height: 1.6;
 }
 
+.quickStart {
+  margin-block-end: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--color-rule-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-paper);
+}
+
+.quickStart h2 {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-style: normal;
+}
+
+.quickStart ol {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quickStart li {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-2);
+}
+
+.quickStart li > span {
+  display: grid;
+  place-items: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-hover);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.quickStart p {
+  margin: 0;
+  color: var(--color-neutral);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.quickStart strong {
+  display: block;
+  color: var(--color-ink);
+}
+
+.exampleGroup {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-end: var(--space-5);
+}
+
+.exampleGroup > span {
+  color: var(--color-neutral);
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.exampleList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.exampleList button {
+  min-height: 2.5rem;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-rule-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-paper);
+  color: var(--color-ink-2);
+  font-size: 0.68rem;
+  font-weight: 650;
+  white-space: nowrap;
+  transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out), transform var(--dur-instant) var(--ease-out);
+}
+
+.exampleList button:active {
+  transform: translateY(1px);
+}
+
+.exampleList button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.exampleList button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
 .panelHeadingCompact {
   justify-content: space-between;
   gap: var(--space-4);
   min-height: 2.75rem;
   margin-block-end: var(--space-3);
+}
+
+.panelDescription,
+.actionHint {
+  margin: calc(var(--space-2) * -1) 0 var(--space-4);
+  color: var(--color-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.actionHint {
+  margin: var(--space-2) 0 0;
 }
 
 .eyebrow {
@@ -251,7 +362,7 @@
 
 .runActions {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2);
 }
 
@@ -362,6 +473,31 @@
   border-block: 1px solid var(--color-rule);
   color: var(--color-neutral);
   font-size: 0.7rem;
+}
+
+.lockGuide {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 1px solid var(--color-rule);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-hover);
+}
+
+.lockGuide svg {
+  margin-block-start: 0.15rem;
+}
+
+.lockGuide p {
+  margin: 0;
+  color: var(--color-neutral);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.lockGuide strong {
+  color: var(--color-ink);
 }
 
 .specModule {
@@ -663,6 +799,12 @@
     background: var(--color-paper-2);
     color: var(--color-ink);
   }
+
+  .exampleList button:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-hover);
+  }
 }
 
 @media (min-width: 40rem) {
@@ -684,6 +826,7 @@
   }
 
   .specToolbar,
+  .lockGuide,
   .specSummary,
   .specEditorBody {
     padding-inline: var(--space-5);
@@ -731,6 +874,7 @@
   }
 
   .specToolbar,
+  .lockGuide,
   .specSummary,
   .specEditorBody {
     padding-inline: var(--space-6);
@@ -745,6 +889,10 @@
   .lockButton,
   .textButton,
   .select {
+    min-height: 2.75rem;
+  }
+
+  .exampleList button {
     min-height: 2.75rem;
   }
 }

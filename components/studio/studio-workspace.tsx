@@ -16,6 +16,21 @@ import { VisualSpecEditor } from "./visual-spec-editor";
 
 import styles from "./studio.module.css";
 
+const STUDIO_EXAMPLES = [
+  {
+    label: "人物不变，只换衣服",
+    text: "成年东亚女性站在白色摄影棚中，保持人物面部、发型和体型不变，换成黑色无袖轻薄上衣和高腰长裤，正面全身构图，50mm 镜头，柔和侧光，不要改变人物身份。",
+  },
+  {
+    label: "姿势不变，只换场景",
+    text: "成年女性保持坐姿不变，双手自然放在膝上，把场景换成老式住宅楼梯，镜头距离人物数级台阶，正面全身构图，28mm 环境人像，昏暗环境但面部正常曝光。",
+  },
+  {
+    label: "镜头与光线",
+    text: "成年男性靠在雨夜街边的玻璃橱窗旁，身体朝左、看向镜头，35mm 镜头，中景，平视机位，浅景深，蓝色霓虹侧光，不要过曝，不要裁掉双手。",
+  },
+] as const;
+
 function levelIcon(level: "error" | "warning" | "suggestion") {
   if (level === "error") return <AlertCircle aria-hidden="true" size={16} />;
   if (level === "warning") return <AlertTriangle aria-hidden="true" size={16} />;
@@ -85,7 +100,27 @@ export function StudioWorkspace() {
           <div className={styles.panelHeading}>
             <span className={styles.eyebrow}>01 / INPUT</span>
             <h1 id="intent-title">描述你脑中的画面</h1>
-            <p>使用自然中文即可。规则解析器只提取明确表达，不补写未说出的视觉事实。</p>
+            <p>不需要会写 Prompt。像平时说话一样描述人物、动作、镜头和环境。</p>
+          </div>
+
+          <section className={styles.quickStart} aria-labelledby="quick-start-title">
+            <h2 id="quick-start-title">第一次使用，只做这 3 步</h2>
+            <ol>
+              <li><span>1</span><p><strong>写画面</strong>输入一段自然中文。</p></li>
+              <li><span>2</span><p><strong>解析画面</strong>系统拆成可编辑字段。</p></li>
+              <li><span>3</span><p><strong>检查并复制</strong>右侧无错误即可复制 Prompt。</p></li>
+            </ol>
+          </section>
+
+          <div className={styles.exampleGroup}>
+            <span>不知道怎么写？先载入一个例子</span>
+            <div className={styles.exampleList}>
+              {STUDIO_EXAMPLES.map((example) => (
+                <button key={example.label} onClick={() => setSourceText(example.text)} type="button">
+                  {example.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className={styles.fieldGroup}>
@@ -124,7 +159,7 @@ export function StudioWorkspace() {
               type="button"
             >
               <Play aria-hidden="true" fill="currentColor" size={15} />
-              {status === "parsing" ? "正在解析" : "规则解析"}
+              {status === "parsing" ? "正在解析" : "解析画面"}
             </button>
             <button
               className={styles.llmButton}
@@ -133,9 +168,10 @@ export function StudioWorkspace() {
               type="button"
             >
               <Sparkles aria-hidden="true" size={15} />
-              {status === "enhancing" ? "补全中" : "LLM 补全"}
+              {status === "enhancing" ? "补全中" : "AI 补全（可选）"}
             </button>
           </div>
+          <p className={styles.actionHint}>先点“解析画面”。只有复杂转身、镜像或多人物关系时，才需要 AI 补全。</p>
 
           {error ? <p className={styles.globalError} role="alert">{error}</p> : null}
 
@@ -160,9 +196,10 @@ export function StudioWorkspace() {
         <section className={`${styles.panel} ${styles.specPanel}`} aria-labelledby="spec-title">
           <span className={styles.eyebrow}>02 / VISUALSPEC</span>
           <div className={styles.panelHeadingCompact}>
-            <h2 id="spec-title">结构化视觉意图</h2>
+            <h2 id="spec-title">系统理解到的画面</h2>
             <span className={styles.schemaBadge}>schema 1.0</span>
           </div>
+          <p className={styles.panelDescription}>展开模块可查看或修改。锁住不想变化的部分，再修改原文并重新解析。</p>
           <VisualSpecEditor
             onCommit={updateModule}
             onReset={resetDraft}
@@ -175,13 +212,14 @@ export function StudioWorkspace() {
           <section className={styles.outputSection} aria-labelledby="doctor-title">
             <span className={styles.eyebrow}>03 / DOCTOR</span>
             <div className={styles.panelHeadingCompact}>
-              <h2 id="doctor-title">诊断</h2>
+              <h2 id="doctor-title">问题检查</h2>
               {doctor ? (
                 <span className={doctor.canCompile ? styles.passBadge : styles.blockBadge}>
                   {doctor.canCompile ? "可编译" : "已阻断"}
                 </span>
               ) : null}
             </div>
+            <p className={styles.panelDescription}>错误会阻止编译；警告和建议不会阻止你继续使用。</p>
 
             {doctor?.diagnostics.length ? (
               <ol className={styles.diagnosticList}>
@@ -218,6 +256,7 @@ export function StudioWorkspace() {
                 {copied ? "已复制" : "复制"}
               </button>
             </div>
+            <p className={styles.panelDescription}>这是可以直接复制到 GPT Image 的最终结果。</p>
             <pre className={styles.promptOutput}>{compiledPrompt ?? "诊断通过后将在这里生成最终 Prompt。"}</pre>
           </section>
 
