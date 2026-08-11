@@ -5,8 +5,8 @@
 ## 本地启动
 
 ```powershell
-npm install
-npm run dev
+npm.cmd install
+npm.cmd run dev
 ```
 
 浏览器打开 [http://localhost:3000/studio](http://localhost:3000/studio)。
@@ -31,13 +31,13 @@ DEEPSEEK_API_KEY=你的_api_key
 DEEPSEEK_PARSER_MODEL=deepseek-chat
 ```
 
-修改环境变量后重启开发服务器。不要把 `.env.local` 提交到 Git。
+修改环境变量后重启开发服务器。不要把 `.env.local` 提交到 Git。若 PowerShell 报“禁止运行脚本”，请始终使用 `npm.cmd`，不要使用 `npm`。
 
 ## 工程检查
 
 ```powershell
-npm run lint
-npm run typecheck
-npm test
-npm run build
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd test
+npm.cmd run build
 ```
