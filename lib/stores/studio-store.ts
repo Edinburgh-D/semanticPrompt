@@ -20,7 +20,7 @@ import {
 export const DEFAULT_STUDIO_SOURCE =
   "成年东亚女性，坐在老式住宅楼梯上，黑色无袖轻薄上衣，深色丝袜，鞋子脱下自然放在附近楼梯，正面全身构图，镜头距离人物数级台阶，28–32mm environmental fashion photography，低饱和灰白色调，昏暗但人物面部保持正常曝光，老式住宅楼梯环境。";
 
-export type StudioStatus = "idle" | "parsing" | "enhancing" | "ready" | "error";
+export type StudioStatus = "idle" | "dirty" | "parsing" | "enhancing" | "ready" | "error";
 export type StudioModel = "gpt-image";
 
 interface StudioArtifacts {
@@ -75,7 +75,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   status: "idle",
   diff: [],
 
-  setSourceText: (sourceText) => set({ sourceText }),
+  setSourceText: (sourceText) => set({ sourceText, status: "dirty", error: undefined }),
   setModel: (model) => set({ model }),
 
   parseDeterministically: () => {

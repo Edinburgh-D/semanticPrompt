@@ -91,7 +91,17 @@ export function StudioWorkspace() {
         </div>
         <div className={styles.topStatus} data-status={status}>
           <CircleDashed aria-hidden="true" size={15} />
-          {status === "parsing" ? "规则解析中" : status === "enhancing" ? "LLM 补全中" : status === "error" ? "需要处理" : "本地工作区"}
+          {status === "parsing"
+            ? "规则解析中"
+            : status === "enhancing"
+              ? "AI 补全中"
+              : status === "ready"
+                ? "解析完成"
+                : status === "dirty"
+                  ? "等待解析"
+                  : status === "error"
+                    ? "需要处理"
+                    : "本地工作区"}
         </div>
       </header>
 
